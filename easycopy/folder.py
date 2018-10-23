@@ -70,11 +70,14 @@ def main():
         contents = ""
         for i,e in enumerate(entries, start=1):
             e = e.strip() # Remove unnecessary leading/trailing space
+            file_type = "item" if re.match(ITEM_TYPE_REGEX, e, flags=re.IGNORECASE) else "folder"
             # Replace abbreviations of item types to full length names
             for k,v in ITEM_TYPES.items():
                 e = re.sub(k + r':\s', v + ": ", e, flags=re.IGNORECASE)
-            e = e.replace("Folder: ", "") # Folders aren't items
-            file_type = "item" if re.match(ITEM_TYPE_REGEX, e, flags=re.IGNORECASE) else "folder"
+            # Remove folder piece and set file_type back to folder if Folder: exists
+            if "Folder: " in e:
+                file_type = "folder"
+                e = e.replace("Folder: ", "") # Remove the Folder piece
             contents += file_type + "\t"
             if '"' in e:
                 e = '"' + e.replace('"', '""') + '"'
