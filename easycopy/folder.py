@@ -8,6 +8,16 @@ import pyperclip
 import sys
 import unidecode
 
+NUMBER_REGEX = r'^\d+(?:\-\d+)?\s'
+ITEM_TYPES = {
+    "bk": "Book",
+    "bdl": "Bundle",
+    "env": "Envelope",
+    "fd": "Folder",
+    "nbk": "Notebook"
+}
+ITEM_TYPE_REGEX = r'(?:' + '|'.join(k+r's?\s' for k in ITEM_TYPES.keys()) + r')'
+
 def main():
     delete_years = easygui.ynbox("Delete the years from each entry when processing guide data?\n\n(MAKE SURE YOU CROSS-REFERENCE WITH THE GUIDE LIST AFTER PASTING!)", "Delete Years?")
     user_continue = True
@@ -26,7 +36,7 @@ def main():
             boxnum = str(boxnum)
         # Remove potential whitespace at beginning and end
         text = unidecode.unidecode(text.strip())
-        text = text.replace("Env ", "").replace("Fd ", "").replace("Bk ", "")
+        text = re.sub(ITEM_TYPE_REGEX, "", text, flags=re.IGNORECASE)
         lines = text.split('\n')
         entries = []
         last_entry = None
@@ -34,21 +44,21 @@ def main():
         for l in lines:
             l = re.sub(r'\s+', " ", l).strip()
             
-            if re.match(r'^\d+(?:\-\d+)?\s', l) and last_entry:
+            if re.match(NUMBER_REGEX, l) and last_entry:
                 entries.append(last_entry)
                 for _ in range(extras):
                     entries.append(last_entry)
                 last_entry = None
                 extras = 0
             
-            if re.match(r'^\d+(?:\-\d+)?\s', l):
-                while re.match(r'^\d+(?:\-\d+)?\s', l):
+            if re.match(NUMBER_REGEX, l):
+                while re.match(NUMBER_REGEX, l):
                     # If we have a range, determine the range
                     rng = re.findall(r'^\d+\-\d+\s', l)
                     if rng:
                         rng = [int(x) for x in rng[0].strip().split('-')]
                         extras = rng[1] - rng[0]
-                    l = re.sub(r'^\d+(?:\-\d+)?\s', "", l).strip()
+                    l = re.sub(NUMBER_REGEX, "", l).strip()
                 last_entry = l
             else:
                 last_entry += " " + l
