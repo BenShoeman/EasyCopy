@@ -16,7 +16,7 @@ ITEM_TYPES = {
     "fd": "Folder",
     "nbk": "Notebook"
 }
-ITEM_TYPE_REGEX = r'(?:' + '|'.join(k+r's?\s' for k in ITEM_TYPES.keys()) + r')'
+ITEM_TYPE_REGEX = r'(' + '|'.join(ITEM_TYPES.keys()) + r')s?'
 
 def main():
     delete_years = easygui.ynbox("Delete the years from each entry when processing guide data?\n\n(MAKE SURE YOU CROSS-REFERENCE WITH THE GUIDE LIST AFTER PASTING!)", "Delete Years?")
@@ -25,6 +25,9 @@ def main():
         text = easygui.textbox("Enter guide list data for 1 box below.", "Enter Data")
         if not text or text.strip() == "":
             return # Exit if clicked cancel or nothing inputted
+        # Remove potential whitespace at beginning and end
+        text = unidecode.unidecode(text.strip())
+        text = re.sub(ITEM_TYPE_REGEX + r'\s+(' + NUMBER_REGEX[1:] + ")", "\\2\\1: ", text, flags=re.IGNORECASE)
         # Get box number, first by trying to find it, then by inputbox if not
         boxnum = re.findall(r'^[\s\n]*\d{1,3}\s+\d', text)
         boxnum = re.findall(r'^[\s\n]*\d{1,3}', boxnum[0]) if boxnum else None
@@ -34,9 +37,6 @@ def main():
             return
         else:
             boxnum = str(boxnum)
-        # Remove potential whitespace at beginning and end
-        text = unidecode.unidecode(text.strip())
-        text = re.sub(ITEM_TYPE_REGEX, "", text, flags=re.IGNORECASE)
         lines = text.split('\n')
         entries = []
         last_entry = None
@@ -70,7 +70,12 @@ def main():
         contents = ""
         for i,e in enumerate(entries, start=1):
             e = e.strip() # Remove unnecessary leading/trailing space
-            contents += "folder\t"
+            # Replace abbreviations of item types to full length names
+            for k,v in ITEM_TYPES.items():
+                e = re.sub(k + r':\s', v + ": ", e, flags=re.IGNORECASE)
+            e = e.replace("Folder: ", "") # Folders aren't items
+            file_type = "item" if re.match(ITEM_TYPE_REGEX, e, flags=re.IGNORECASE) else "folder"
+            contents += file_type + "\t"
             if '"' in e:
                 e = '"' + e.replace('"', '""') + '"'
             # Get all years from current entry. The replace business will change a
@@ -97,7 +102,7 @@ def main():
             else:
                 contents += e
                 contents += "\t\t\tn.d."
-            contents += "\t" + boxnum + "\tfolder\t" + str(i)
+            contents += "\t" + boxnum + "\t" + file_type + "\t" + str(i)
             contents += "\n"
         
         pyperclip.copy(contents[:-1])
