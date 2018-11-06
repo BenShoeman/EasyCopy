@@ -3,7 +3,7 @@
 import easygui
 
 def main():
-    options = ["Folder-Level (Standard)", "Folder-Level (Use S&C for Title)", "Box-Level"]
+    options = ["Folder-Level (Standard)", "Folder-Level (Use S&C for Title)", "Box-Level", "Exit"]
 
     user_continue = True
     while user_continue:
@@ -21,10 +21,7 @@ def main():
             import easycopy.box
             easycopy.box.main()
         
-        if choice:
-            user_continue = easygui.ynbox("Return to main menu?", "Continue?")
-        else:
-            user_continue = False
+        if choice is None or choice == "Exit": user_continue = False
 
 if __name__ == "__main__":
     main()
