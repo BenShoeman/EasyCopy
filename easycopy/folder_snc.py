@@ -15,7 +15,7 @@ def main():
     )
     user_continue = True
     while user_continue:
-        text = easygui.textbox("Enter guide list data for 1 box below.", "Enter Data")
+        text = easygui.codebox("Enter guide list data for 1 box below.", "Enter Data")
         if not text or text.strip() == "":
             return
         # Remove potential whitespace at beginning and end

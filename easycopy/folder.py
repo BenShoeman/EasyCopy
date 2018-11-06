@@ -22,7 +22,7 @@ def main():
     delete_years = easygui.ynbox("Delete the years from each entry when processing guide data?\n\n(MAKE SURE YOU CROSS-REFERENCE WITH THE GUIDE LIST AFTER PASTING!)", "Delete Years?")
     user_continue = True
     while user_continue:
-        text = easygui.textbox("Enter guide list data for 1 box below.", "Enter Data")
+        text = easygui.codebox("Enter guide list data for 1 box below.", "Enter Data")
         if not text or text.strip() == "":
             return # Exit if clicked cancel or nothing inputted
         # Remove potential whitespace at beginning and end

@@ -9,7 +9,7 @@ import sys
 import unidecode
 
 def main():
-    text = easygui.textbox("Enter the box-level inventory below.", "Enter Data")
+    text = easygui.codebox("Enter the box-level inventory below.", "Enter Data")
     if not text or text.strip() == "":
         return
     # Remove potential whitespace at beginning and end
