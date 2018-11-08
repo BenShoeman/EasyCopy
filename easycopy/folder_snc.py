@@ -1,7 +1,9 @@
 # -*- coding: utf8 -*-
 
+from collections import defaultdict
 from datetime import datetime
 import easygui
+import json
 import re
 import os
 import pyperclip
@@ -20,6 +22,17 @@ def main():
             return
         # Remove potential whitespace at beginning and end
         text = unidecode.unidecode(text.strip())
+
+        # First get settings header if it exists
+        opts = re.findall("^{.*}", text)
+        if opts:
+            opts = defaultdict(lambda: None, json.loads(opts[0]))
+            text = re.sub("^{.*}", "", text).strip()
+        else:
+            opts = defaultdict(lambda: None)
+        # Then get options
+        min_year = 1600 if opts["min_year"] is None else opts["min_year"]
+
         text = text.replace("Env ", "").replace("Fd ", "").replace("Bk ", "")
         lines = text.split('\n')
         # Get box number, first by trying to find it, then by inputbox if not
@@ -69,7 +82,7 @@ def main():
             # Get all years from current entry. The replace business will change a
             # year like '66 to 1966 or '01 to 2001 (19/20 dependent on current year)
             years = [y.replace("'", "19" if int(y[1:]) > datetime.now().year % 100 else "20") if len(y) < 4 else y for y in re.findall(r"(?:[1-2]\d{3}|'\d\d)", e)]
-            years = [int(y) for y in years if 1600 <= int(y) <= datetime.now().year]
+            years = [int(y) for y in years if min_year <= int(y) <= datetime.now().year]
             if years:
                 if len(years) >= 2:
                     # Pick the min and max (for out of order years or many years)
