@@ -3,7 +3,12 @@
 import easygui
 
 def main():
-    options = ["Folder-Level (Standard)", "Folder-Level (Use S&C for Title)", "Box-Level", "Exit"]
+    options = [
+        "Folder-Level (Standard)",
+        "Folder-Level (Use S&C for Title)",
+        "Box-Level",
+        "Exit"
+    ]
 
     user_continue = True
     while user_continue:

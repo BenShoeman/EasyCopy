@@ -10,28 +10,31 @@ import pyperclip
 import sys
 import unidecode
 
+import easycopy.options as options
+
 def main():
     easygui.msgbox("This is for boxes where each folder has too many items to "
         "enter in the title field. For example, something like the following:",
         "Explanation", image=os.path.join("img", "folderscope_ex.gif")
     )
+    json_str = ""
     user_continue = True
     while user_continue:
-        text = easygui.codebox("Enter guide list data for 1 box below.", "Enter Data")
+        text = easygui.codebox(
+            "Enter guide list data for 1 box below.",
+            "Enter Data",
+            (json_str + "\n") if json_str else ""
+        )
         if not text or text.strip() == "":
             return
         # Remove potential whitespace at beginning and end
         text = unidecode.unidecode(text.strip())
 
         # First get settings header if it exists
-        opts = re.findall("^{.*}", text)
-        if opts:
-            opts = defaultdict(lambda: None, json.loads(opts[0]))
-            text = re.sub("^{.*}", "", text).strip()
-        else:
-            opts = defaultdict(lambda: None)
-        # Then get options
-        min_year = 1600 if opts["min_year"] is None else opts["min_year"]
+        json_str = re.findall("^{.*}", text)
+        json_str = json_str[0] if json_str else None
+        opts = options.get_options(json_str)
+        text = re.sub("^{.*}", "", text).strip()
 
         text = text.replace("Env ", "").replace("Fd ", "").replace("Bk ", "")
         lines = text.split('\n')
@@ -50,6 +53,9 @@ def main():
         extras = 0
         for l in lines:
             l = re.sub(r'\s+', " ", l).strip()
+            # Perform user substitutions per line
+            if opts["user_regex"] is not None and opts["user_subst"] is not None:
+                l = opts["user_regex"].sub(opts["user_subst"], l)
             
             if re.match(r'^\d+(?:\-\d+)?\s', l) and last_entry:
                 entries.append(last_entry)
@@ -82,7 +88,7 @@ def main():
             # Get all years from current entry. The replace business will change a
             # year like '66 to 1966 or '01 to 2001 (19/20 dependent on current year)
             years = [y.replace("'", "19" if int(y[1:]) > datetime.now().year % 100 else "20") if len(y) < 4 else y for y in re.findall(r"(?:[1-2]\d{3}|'\d\d)", e)]
-            years = [int(y) for y in years if min_year <= int(y) <= datetime.now().year]
+            years = [int(y) for y in years if opts["min_year"] <= int(y) <= datetime.now().year]
             if years:
                 if len(years) >= 2:
                     # Pick the min and max (for out of order years or many years)
