@@ -13,13 +13,8 @@ import unidecode
 import easycopy.options as options
 
 NUMBER_REGEX = r'^\d+(?:\-\d+)?\s'
-ITEM_TYPES = {
-    "bk": "Book",
-    "bdl": "Bundle",
-    "env": "Envelope",
-    "fd": "Folder",
-    "nbk": "Notebook"
-}
+with open(os.path.join("data", "itemtypes.json")) as f:
+    ITEM_TYPES = json.load(f)
 ITEM_TYPE_REGEX = r'(' + '|'.join(ITEM_TYPES.keys()) + r')s?'
 
 def main():
