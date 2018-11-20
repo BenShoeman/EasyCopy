@@ -1,8 +1,11 @@
 {
   "bk": "Book",
   "bdl": "Bundle",
+  "dy": "Diary",
   "env": "Envelope",
   "fd": "Folder",
   "nbk": "Notebook",
+  "sbk": "Scrapbook",
+  "sk": "Scrapbook",
   "tp": "Tape"
 }
