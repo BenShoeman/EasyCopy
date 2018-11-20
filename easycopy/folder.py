@@ -12,7 +12,7 @@ import unidecode
 
 import easycopy.options as options
 
-NUMBER_REGEX = r'^\d+(?:\-\d+)?\s'
+NUMBER_REGEX = r'^\d{1,3}(?:\-\d{1,3})?\s'
 with open(os.path.join("data", "itemtypes.json")) as f:
     ITEM_TYPES = json.load(f)
 ITEM_TYPE_REGEX = r'(' + '|'.join(ITEM_TYPES.keys()) + r')s?'
@@ -68,7 +68,7 @@ def main():
             if re.match(NUMBER_REGEX, l):
                 while re.match(NUMBER_REGEX, l):
                     # If we have a range, determine the range
-                    rng = re.findall(r'^\d+\-\d+\s', l)
+                    rng = re.findall(r'^\d{1,3}\-\d{1,3}\s', l)
                     if rng:
                         rng = [int(x) for x in rng[0].strip().split('-')]
                         extras = rng[1] - rng[0]

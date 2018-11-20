@@ -57,21 +57,21 @@ def main():
             if opts["user_regex"] is not None and opts["user_subst"] is not None:
                 l = opts["user_regex"].sub(opts["user_subst"], l)
             
-            if re.match(r'^\d+(?:\-\d+)?\s', l) and last_entry:
+            if re.match(r'^\d{1,3}(?:\-\d{1,3})?\s', l) and last_entry:
                 entries.append(last_entry)
                 for _ in range(extras):
                     entries.append(last_entry)
                 last_entry = None
                 extras = 0
             
-            if re.match(r'^\d+(?:\-\d+)?\s', l):
-                while re.match(r'^\d+(?:\-\d+)?\s', l):
+            if re.match(r'^\d{1,3}(?:\-\d{1,3})?\s', l):
+                while re.match(r'^\d{1,3}(?:\-\d{1,3})?\s', l):
                     # If we have a range, determine the range
-                    rng = re.findall(r'^\d+\-\d+\s', l)
+                    rng = re.findall(r'^\d{1,3}\-\d{1,3}\s', l)
                     if rng:
                         rng = [int(x) for x in rng[0].strip().split('-')]
                         extras = rng[1] - rng[0]
-                    l = re.sub(r'^\d+(?:\-\d+)?\s', "", l).strip()
+                    l = re.sub(r'^\d{1,3}(?:\-\d{1,3})?\s', "", l).strip()
                 last_entry = l
             else:
                 last_entry += "\n" + l
