@@ -12,6 +12,11 @@ import unidecode
 
 import easycopy.options as options
 
+NUMBER_REGEX = r'^\d{1,3}(?:\-\d{1,3})?\s'
+with open(os.path.join("data", "itemtypes.json")) as f:
+    ITEM_TYPES = json.load(f)
+ITEM_TYPE_REGEX = r'(' + '|'.join(ITEM_TYPES.keys()) + r')s?'
+
 def main():
     easygui.msgbox("This is for boxes where each folder has too many items to "
         "enter in the title field. For example, something like the following:",
@@ -36,8 +41,7 @@ def main():
         opts = options.get_options(json_str)
         text = re.sub("^{.*}", "", text).strip()
 
-        text = text.replace("Env ", "").replace("Fd ", "").replace("Bk ", "")
-        lines = text.split('\n')
+        text = re.sub(ITEM_TYPE_REGEX + r'\s+(' + NUMBER_REGEX[1:] + ")", "\\2\\1: ", text, flags=re.IGNORECASE)
         # Get box number, first by trying to find it, then by inputbox if not
         boxnum = re.findall(r'^[\s\n]*\d{1,3}\s+\d', text)
         boxnum = re.findall(r'^[\s\n]*\d{1,3}', boxnum[0]) if boxnum else None
@@ -47,7 +51,7 @@ def main():
             return
         else:
             boxnum = str(boxnum)
-
+        lines = text.split('\n')
         entries = []
         last_entry = None
         extras = 0
@@ -57,21 +61,21 @@ def main():
             if opts["user_regex"] is not None and opts["user_subst"] is not None:
                 l = opts["user_regex"].sub(opts["user_subst"], l)
             
-            if re.match(r'^\d{1,3}(?:\-\d{1,3})?\s', l) and last_entry:
+            if re.match(NUMBER_REGEX, l) and last_entry:
                 entries.append(last_entry)
                 for _ in range(extras):
                     entries.append(last_entry)
                 last_entry = None
                 extras = 0
             
-            if re.match(r'^\d{1,3}(?:\-\d{1,3})?\s', l):
-                while re.match(r'^\d{1,3}(?:\-\d{1,3})?\s', l):
+            if re.match(NUMBER_REGEX, l):
+                while re.match(NUMBER_REGEX, l):
                     # If we have a range, determine the range
                     rng = re.findall(r'^\d{1,3}\-\d{1,3}\s', l)
                     if rng:
                         rng = [int(x) for x in rng[0].strip().split('-')]
                         extras = rng[1] - rng[0]
-                    l = re.sub(r'^\d{1,3}(?:\-\d{1,3})?\s', "", l).strip()
+                    l = re.sub(NUMBER_REGEX, "", l).strip()
                 last_entry = l
             else:
                 last_entry += "\n" + l
@@ -83,8 +87,19 @@ def main():
         contents = ""
         for i,e in enumerate(entries, start=1):
             e = e.strip() # Remove unnecessary leading/trailing space
-            contents += "folder\t"
-            contents += "Folder " + str(i)
+            file_type = "item" if re.match(ITEM_TYPE_REGEX, e, flags=re.IGNORECASE) else "folder"
+            # Replace abbreviations of item types to full length names
+            item_type = "Folder"
+            for k,v in ITEM_TYPES.items():
+                if re.findall(k + r':\s', e):
+                    item_type = v
+                    e = re.sub(k + r':\s', "", e, flags=re.IGNORECASE)
+                    # Set file_type back to folder if Folder: exists
+                    if k == "fd":
+                        file_type = "folder"
+                    break
+            contents += file_type + "\t"
+            contents += item_type + " " + str(i)
             # Get all years from current entry. The replace business will change a
             # year like '66 to 1966 or '01 to 2001 (19/20 dependent on current year)
             years = [y.replace("'", "19" if int(y[1:]) > datetime.now().year % 100 else "20") if len(y) < 4 else y for y in re.findall(r"(?:[1-2]\d{3}|'\d\d)", e)]
@@ -102,7 +117,7 @@ def main():
                 contents += "\t" + "\t".join(str(y) for y in years) + "\t"
             else:
                 contents += "\t\t\tn.d."
-            contents += "\t" + boxnum + "\tfolder\t" + str(i) + "\t"
+            contents += "\t" + boxnum + "\t" + file_type + "\t" + str(i) + "\t"
             contents += '"' + e.replace('"', '""') + '"'
             contents += "\n"
         
