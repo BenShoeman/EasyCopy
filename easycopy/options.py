@@ -28,5 +28,7 @@ def get_options(json_str):
         opts["user_regex"] = re.compile(opts["regexsub"][0])
         opts["user_subst"] = opts["regexsub"][1]
         del opts["regexsub"]
+    if opts["prepend"] is None:
+        opts["prepend"] = ""
     
     return opts

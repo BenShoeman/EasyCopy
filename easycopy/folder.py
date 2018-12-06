@@ -84,6 +84,7 @@ def main():
         contents = ""
         for i,e in enumerate(entries, start=1):
             e = e.strip() # Remove unnecessary leading/trailing space
+            e = opts["prepend"] + e # Prepend the piece we want to prepend
             file_type = "item" if re.match(ITEM_TYPE_REGEX, e, flags=re.IGNORECASE) else "folder"
             # Replace abbreviations of item types to full length names
             for k,v in ITEM_TYPES.items():
