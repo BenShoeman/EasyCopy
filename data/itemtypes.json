@@ -1,6 +1,8 @@
 {
+  "alb": "Album",
   "bk": "Book",
   "bdl": "Bundle",
+  "bndl": "Bundle",
   "dy": "Diary",
   "env": "Envelope",
   "fd": "Folder",
