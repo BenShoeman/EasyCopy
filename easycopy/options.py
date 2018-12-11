@@ -3,7 +3,8 @@ import json
 import re
 
 DEFAULTS = {
-    "min_year": 1600
+    "min_year": 1600,
+    "prepend": ""
 }
 
 # json_str isn't explicitly a JSON string, also can have Javascript-like regex
@@ -29,6 +30,6 @@ def get_options(json_str):
         opts["user_subst"] = opts["regexsub"][1]
         del opts["regexsub"]
     if opts["prepend"] is None:
-        opts["prepend"] = ""
+        opts["prepend"] = DEFAULTS["prepend"]
     
     return opts

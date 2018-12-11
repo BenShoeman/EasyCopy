@@ -7,6 +7,7 @@ def main():
         "Folder-Level (Standard)",
         "Folder-Level (Use S&C for Title)",
         "Box-Level",
+        "Help",
         "Exit"
     ]
 
@@ -25,6 +26,9 @@ def main():
         elif choice == "Box-Level":
             import easycopy.box
             easycopy.box.main()
+        elif choice == "Help":
+            import easycopy.help
+            easycopy.help.main()
         
         if choice is None or choice == "Exit": user_continue = False
 

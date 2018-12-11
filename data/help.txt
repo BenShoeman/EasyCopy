@@ -1,0 +1,60 @@
+# How to Use
+
+Guide lists tend to have the following format:
+
+Box   Fd
+  1    1    First Item
+       2    Second Item, 20XX
+       3    Third Item, 19XX-20YY
+
+Each folder has a title and sometimes a year or year range. This format uses the Folder-Level (Standard) option.
+
+Sometimes, you encounter lists where there are several items per folder, kind of like the following:
+
+Box   Fd
+  1    1    An item
+            Another item
+            A third item
+       2    An item again, 20XX
+            Another item again, 20XY
+            An item once more, 20XZ
+
+Having a folder title with all of these item descriptions strung together is cumbersome and hard to read, so the entries have to be put in the scope and contents field. These are where you use the Folder-Level (Use S&C for Title) option.
+
+Finally, sometimes you'll encounter box-level inventories, which look as follows:
+
+Box
+  1    First box
+  2    Second box
+  3    Third box
+
+Use the Box-Level option for these.
+
+When easycopy says the text has copied onto the clipboard, just paste into the Level field on the Excel to EAD xlsx document and everything will be pasted in the right format!
+
+# Extra Options
+
+There are extra options you can use to change the way easycopy reads the guide lists you paste into it. To use them, you have to put a JSON block in the very first line of the text box, before what you paste in. JSON looks like this:
+
+{"option_name_1": option_value_1, "option_name_2", option_value_2}
+
+The three available options are:
+
+min_year: Change the minimum year that is accepted as a year, which is 1600 by default. For example, if you have a collection with items dated between 1500 and 1599, you can set min_year to 1500 to read those years.
+
+prepend: Add some text before every single item in the box. For example, if a guide list has a box with the heading "Correspondence" and every item is just a year, you could set prepend to "Correspondence " to add that to every item.
+
+regexsub: Substitute text in each line based on a regular expression. The value looks like [/regex/, "substitution"].
+
+For example, if you have the following text in the guide list:
+          Correspondence
+1    1    1550
+     2    1551
+
+You could use the following options to add "Correspondence" to every item and accept years back to 1550:
+
+{"min_year": 1550, "prepend": "Correspondence "}
+
+# Questions/Bugs?
+
+You can email any questions you have about easycopy or bugs you find to Ben at besh3382exc@colorado.edu! If you're reporting a bug, please include details about what happened, including the steps you did to produce the error (so Ben can figure out what went wrong). Thanks!
